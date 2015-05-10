@@ -1,0 +1,7 @@
+type: module
+name: 'Filter permissions'
+description: 'Provides role and module filters to simplify the user permissions page.'
+package: 'Administration'
+core: 8.x
+dependencies:
+ - user

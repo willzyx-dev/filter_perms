@@ -1,0 +1,5 @@
+services:
+  filter_perms.route_subscriber:
+    class: Drupal\filter_perms\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
