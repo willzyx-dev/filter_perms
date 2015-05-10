@@ -257,7 +257,8 @@ class PermissionsForm extends UserPermissionsForm {
    *   The filter setting for the current user.
    */
   protected function getFilterSettings() {
-    return $this->keyValueExpirable->get($this->currentUser()->id());
+    $default = array('roles' => array(), 'modules' => array());
+    return $this->keyValueExpirable->get($this->currentUser()->id(), $default);
   }
 
 } 
