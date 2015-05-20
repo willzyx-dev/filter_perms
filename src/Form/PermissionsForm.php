@@ -8,6 +8,7 @@
 namespace Drupal\filter_perms\Form;
 
 use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreExpirableInterface;
 use Drupal\user\Form\UserPermissionsForm;
@@ -39,11 +40,13 @@ class PermissionsForm extends UserPermissionsForm {
    *   The permission handler.
    * @param \Drupal\user\RoleStorageInterface $role_storage
    *   The role storage.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface
+   *   The module handler.
    * @param \Drupal\Core\KeyValueStore\KeyValueStoreExpirableInterface $key_value_expirable
    *   The key value expirable factory.
    */
-  public function __construct(PermissionHandlerInterface $permission_handler, RoleStorageInterface $role_storage, KeyValueStoreExpirableInterface $key_value_expirable) {
-    parent::__construct($permission_handler, $role_storage);
+  public function __construct(PermissionHandlerInterface $permission_handler, RoleStorageInterface $role_storage, ModuleHandlerInterface $module_handler, KeyValueStoreExpirableInterface $key_value_expirable) {
+    parent::__construct($permission_handler, $role_storage, $module_handler);
 
     $this->keyValueExpirable = $key_value_expirable;
   }
@@ -55,6 +58,7 @@ class PermissionsForm extends UserPermissionsForm {
     return new static(
       $container->get('user.permissions'),
       $container->get('entity.manager')->getStorage('user_role'),
+      $container->get('module_handler'),
       $container->get('keyvalue.expirable')->get('filter_perms_list')
     );
   }
@@ -64,7 +68,6 @@ class PermissionsForm extends UserPermissionsForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Render role/permission overview:
-    $module_info = system_rebuild_module_data();
     $hide_descriptions = system_admin_compact_mode();
 
     $form['system_compact_link'] = array(
@@ -176,7 +179,7 @@ class PermissionsForm extends UserPermissionsForm {
           'class' => array('module'),
           'id' => 'module-' . $provider,
         ),
-        '#markup' => $module_info[$provider]->info['name'],
+        '#markup' => $this->moduleHandler->getName($provider),
       ));
       foreach ($permissions as $perm => $perm_item) {
         // Fill in default values for the permission.
